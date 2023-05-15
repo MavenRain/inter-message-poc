@@ -1,0 +1,13 @@
+[package]
+name = "inter-message-poc"
+version = "0.1.0"
+edition = "2021"
+
+# See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
+
+[dependencies]
+frost-dalek = "0.2"
+hash32 = "0.3"
+minicbor = { version = "0.19", features = ["derive", "std"] }
+many-identity = { git = "https://github.com/liftedinit/many-rs.git" }
+many-identity-dsa = { git = "https://github.com/liftedinit/many-rs.git" }
