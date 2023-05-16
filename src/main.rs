@@ -1,9 +1,8 @@
 use {
     derive_more::{From, Into, TryInto},
     frost_dalek::{
-        compute_message_hash, generate_commitment_share_lists,
-        DistributedKeyGeneration, Parameters, Participant,
-        SignatureAggregator,
+        compute_message_hash, generate_commitment_share_lists, DistributedKeyGeneration,
+        Parameters, Participant, SignatureAggregator,
     },
     hash32::{Hasher as _, Murmur3Hasher},
     many_identity::{Address as InnerAddress, Identity},
@@ -66,11 +65,17 @@ fn get_threshold_signature_for_2_of_3() -> Result<(), Error> {
     println!("p2 registered as a participant");
     let (p3, coefficients3) = Participant::new(&parameters, p3_index.into());
     println!("p3 registered as a participant");
-    p1.public_key().ok_or(()).and_then(|p1_public_key| p1.proof_of_secret_key.verify(&p1.index, p1_public_key))?;
+    p1.public_key()
+        .ok_or(())
+        .and_then(|p1_public_key| p1.proof_of_secret_key.verify(&p1.index, p1_public_key))?;
     println!("p1 proof-of-knowledge of secret key verified");
-    p2.public_key().ok_or(()).and_then(|p2_public_key| p2.proof_of_secret_key.verify(&p2.index, p2_public_key))?;
+    p2.public_key()
+        .ok_or(())
+        .and_then(|p2_public_key| p2.proof_of_secret_key.verify(&p2.index, p2_public_key))?;
     println!("p2 proof-of-knowledge of secret key verified");
-    p3.public_key().ok_or(()).and_then(|p3_public_key| p3.proof_of_secret_key.verify(&p3.index, p3_public_key))?;
+    p3.public_key()
+        .ok_or(())
+        .and_then(|p3_public_key| p3.proof_of_secret_key.verify(&p3.index, p3_public_key))?;
     println!("p3 proof-of-knowledge of secret key verified");
     let p1_state = DistributedKeyGeneration::new(
         &parameters,
@@ -193,8 +198,10 @@ fn get_threshold_signature_for_2_of_3() -> Result<(), Error> {
             let message = b"message";
             let (p2_public_comshares, mut p2_secret_comshares) =
                 generate_commitment_share_lists(&mut OsRng, p2.index, 1);
+            println!("p2 computes public commitment shares");
             let (p3_public_comshares, mut p3_secret_comshares) =
                 generate_commitment_share_lists(&mut OsRng, p3.index, 1);
+            println!("p3 computes public commitment shares");
             let mut signature_aggregator = SignatureAggregator::new(
                 parameters,
                 group_key,
@@ -215,6 +222,7 @@ fn get_threshold_signature_for_2_of_3() -> Result<(), Error> {
             );
             println!("p3 signer included in aggregator");
             let signers = signature_aggregator.get_signers();
+            println!("Aggregator announces which participants are expected to sign");
             let message_hash = compute_message_hash(context.as_slice(), message.as_slice());
             println!("Compute hash of agreed upon message");
             let (p2_partial, p3_partial) = p2_sk
@@ -253,18 +261,20 @@ fn get_threshold_signature_for_2_of_3() -> Result<(), Error> {
                 .map_err(Error::from)
                 .and_then(|threshold_signature| {
                     println!("Threshold signature constructed");
-                    threshold_signature.verify(&group_key, &message_hash).map_err(Error::from)
+                    threshold_signature
+                        .verify(&group_key, &message_hash)
+                        .map_err(Error::from)
                 })
-                // NB: Frost-dalek is currently incompatible with ed25519 verification
-                //
-                //.and_then(|threshold_signature| {
-                //    threshold_signature.verify(&group_key, &message_hash)?;
-                //    Ok(ed25519_dalek::Signature::from(threshold_signature.to_bytes()))
-                //})
-                //.and_then(|threshold_signature|
-                //    ed25519_dalek::PublicKey::from_bytes(&group_key.to_bytes()[..]).map_err(Error::from)
-                //        .and_then(|public_key| public_key.verify(&message_hash[..], &threshold_signature).map_err(Error::from))
-                //)
+            // NB: Frost-dalek is currently incompatible with ed25519 verification
+            //
+            //.and_then(|threshold_signature| {
+            //    threshold_signature.verify(&group_key, &message_hash)?;
+            //    Ok(ed25519_dalek::Signature::from(threshold_signature.to_bytes()))
+            //})
+            //.and_then(|threshold_signature|
+            //    ed25519_dalek::PublicKey::from_bytes(&group_key.to_bytes()[..]).map_err(Error::from)
+            //        .and_then(|public_key| public_key.verify(&message_hash[..], &threshold_signature).map_err(Error::from))
+            //)
         })
 }
 
