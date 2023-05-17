@@ -104,21 +104,21 @@ fn get_threshold_signature_for_2_of_3() -> Result<(), Error> {
     let p1_peer_secrets: Result<Vec<_>, _> = p1_state.clone().and_then(|state| {
         state
             .their_secret_shares()
-            .map(|shares| shares.iter().cloned().collect())
+            .map(|shares| shares.to_vec())
             .map_err(Error::from)
     });
     println!("p1 collects secret shares to be distributed to other participants");
     let p2_peer_secrets: Result<Vec<_>, _> = p2_state.clone().and_then(|state| {
         state
             .their_secret_shares()
-            .map(|shares| shares.iter().cloned().collect())
+            .map(|shares| shares.to_vec())
             .map_err(Error::from)
     });
     println!("p2 collects secret shares to be distributed to other participants");
     let p3_peer_secrets: Result<Vec<_>, _> = p3_state.clone().and_then(|state| {
         state
             .their_secret_shares()
-            .map(|shares| shares.iter().cloned().collect())
+            .map(|shares| shares.to_vec())
             .map_err(Error::from)
     });
     println!("p3 collects secret shares to be distributed to other participants");
